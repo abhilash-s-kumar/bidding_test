@@ -16,11 +16,14 @@ const createModel = async () => {
         uid: String,
         name: String,
         description: String,
+        category: String,
         owner_id: String,
         current_status: { type: String, default: 'onSale' },
         bidding_history: [BiddingHistorySchema],
         image: [String],
         price: Number,
+        added_date: Date,
+        start_date: Date,
         deadline: Date,
     }, { collection: 'items' });
 

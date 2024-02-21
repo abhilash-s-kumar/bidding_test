@@ -3,7 +3,8 @@ const bodyParser = require('body-parser');
 require('dotenv').config();
 const cors = require('cors');
 const auth = require('./routes/auth_route');
-const customerRoute = require('./routes/customer_route');
+const itemsRoute = require('./routes/items_route.js');
+const categoryRoute = require('./routes/category_route.js');
 const CustomError = require('./handle/custom_error');
 
 const fileRoute = require('./routes/file_upload.js');
@@ -24,8 +25,9 @@ app.use(express.static('public'));
 
 // Routes
 app.use('/auth', auth);
-app.use('/customer', customerRoute);
+app.use('/items', itemsRoute);
 app.use('/file', fileRoute);
+app.use('/category', categoryRoute);
 app.route('/').get((req, res) => {
     res.send("Welcome to the API");
 });

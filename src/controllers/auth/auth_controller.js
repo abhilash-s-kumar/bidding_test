@@ -3,101 +3,66 @@ const { isAlreadyRegistered } = require('../../helpers/auth_helpers/auth_helpers
 const CustomError = require('../../handle/custom_error')
 const { generateToken } = require('../../helpers/auth_helpers/jwt_helper')
 const { v4: uuidv4 } = require('uuid');
+var customerModel = require('../../models/usersDB/customer')
 
+const login = async (password, mobile, email) => {
+    try {
+        // Ensure customerModel is available
+        customerModel = await customerModel;
 
-const login = async (password, phone, email) => {
-    return new Promise(async (resolve, reject) => {
-        // Find the user with the phone number
-        console.log("password = " + password);
-        console.log("phone = " + phone);
-        console.log("email = " + email);
-        staffModel.findOne({ $or: [{ phone: phone }, { email: email }] }, (err, user) => {
-            if (err || !user) {
-                console.log(user);
-                console.log('Invalid password or Invalid email', 'INVALID_PASSWORD');
-                reject(new CustomError(400, 'Invalid password or Invalid email', 'INVALID_PASSWORD'));
-            } else {
-                // Check if the password is correct
-                if (verifyPassword(password, user.password)) {
-                    // Generate JWT token and send it back.
-                    const token = generateToken(user);
-                    resolve({ user, token });
-                } else {
-                    console.log('Invalid password', 'INVALID_PASSWORD');
-                    reject(new CustomError(400, 'Invalid password', 'INVALID_PASSWORD'));
-                }
-            }
-        })
-    });
-}
+        // Find user by phone or email
+        const user = await customerModel.findOne({ $or: [{ mobile: mobile }, { email: email }] });
 
-const register = (staffModelData) => {
-    return new Promise(async (resolve, reject) => {
-        if (await isAlreadyRegistered(staffModelData)) {
+        // If user not found, or error occurs, throw an error
+        if (!user) {
+            console.log('Invalid password or Invalid email/phone', 'INVALID_PASSWORD');
+            throw new CustomError(400, 'Invalid password or Invalid email/phone', 'INVALID_PASSWORD');
+        }
 
-            // Means update the user
-            // use id.
-            staffModelData.updated_at = Date.now();
-            // Check if the password is changed.
-            if (isPasswordHashed(staffModelData.password) == false) {
-                staffModelData.password = hashPassword(staffModelData.password);
-            } else {
-                delete staffModelData.password;
-            }
-            try {
-                const result = await staffModel.updateOne({ uid: staffModelData.uid }, staffModelData);
-                //* Generate JWT token and send it back.
-                resolve({ result });
-            } catch (error) {
-                reject(error);
-            }
+        // Verify password
+        if (verifyPassword(password, user.password)) {
+            // Generate token
+            const token = generateToken(user);
+            return { user, token };
         } else {
-            staffModelData.password = hashPassword(staffModelData.password);
-            staffModelData.created_at = Date.now();
-            staffModelData.updated_at = Date.now();
-            staffModelData.uid = uuidv4();
-            try {
-                const result = await staffModel.create(staffModelData);
-                //* Generate JWT token and send it back.
-                resolve({ result });
-            } catch (error) {
-                reject(error);
+            console.log('Invalid password', 'INVALID_PASSWORD');
+            throw new CustomError(400, 'Invalid password', 'INVALID_PASSWORD');
+        }
+    } catch (error) {
+        throw error;
+    }
+};
+
+
+const register = (customerModelData) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const alreadyRegistered = await isAlreadyRegistered(customerModelData);
+
+            if (alreadyRegistered) {
+                console.log("User already registered");
+                resolve({ message: "User is already registered." });
+                return;
             }
+
+            customerModelData.password = hashPassword(customerModelData.password);
+            customerModelData.created_at = Date.now();
+            customerModelData.updated_at = Date.now();
+            customerModelData.id = uuidv4();
+
+            customerModel = await customerModel;
+            const result = await customerModel.create(customerModelData);
+
+            resolve({ result });
+        } catch (error) {
+            console.log(error);
+            reject(error);
         }
     });
-}
-
-// Get all staffs under a franchise (brid)
-const getStaffs = async (query) => {
-    return new Promise(async (resolve, reject) => {
-        staffModel.find(query, (err, staffs) => {
-            if (err) {
-                reject(new CustomError(400, 'Error while fetching staffs', 'ERROR_FETCHING_STAFFS'));
-            } else {
-                resolve(staffs);
-            }
-        });
-    });
-}
-
-// Delete a staff with id
-const deleteStaff = async (uid) => {
-    return new Promise(async (resolve, reject) => {
-        staffModel.deleteOne({ "uid": uid }, (err, staff) => {
-            if (err) {
-                reject(new CustomError(400, 'Error while deleting staff', 'ERROR_DELETING_STAFF'));
-            } else {
-                resolve(staff);
-            }
-        });
-    });
-
-}
+};
 
 
 module.exports = {
     login,
-    register,
-    getStaffs,
-    deleteStaff
+    register
 }

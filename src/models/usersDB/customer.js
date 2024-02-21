@@ -14,7 +14,10 @@ const createModel = async () => {
         mobile: String,
         email: String,
         profile_pic: String,
+        password: String,
         reg_date: { type: Date, default: timeInKolkata },
+        created_at: { type: Date, default: timeInKolkata },
+        updated_at: { type: Date, default: timeInKolkata },
     }, { collection: 'customer' });
 
     const userDBConnection = await userDB;

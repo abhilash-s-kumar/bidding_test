@@ -27,9 +27,6 @@ router.post('/upload', authenticateToken, upload.array('files'), (req, res) => {
     console.log("/upload");
     const lsitOfFiles = [];
     for (let i = 0; i < req.files.length; i++) {
-        // Add file path to the list of files
-        // And remove the public folder from the path
-        // Add them each to the list of files
         const filePath = req.files[i].path.replace('public', '');
         lsitOfFiles.push(filePath);
     }
