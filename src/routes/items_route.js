@@ -63,7 +63,7 @@ router.get('/get_items', authenticateToken, async (req, res) => {
         if (category != "") {
             final_condition.category = category;
         }
-        if (from != "" && to != "") {
+        if (price_from != "" && price_to != "") {
             final_condition.price = {
                 $gte: parseFloat(price_from),
                 $lte: parseFloat(price_to)
