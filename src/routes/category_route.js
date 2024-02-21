@@ -25,7 +25,7 @@ router.post('/add_category', authenticateToken, async (req, res) => {
     }
 });
 
-//only disables the item, doesnt delete permanently.
+//This will permanently delete the item from the DB.
 router.post('/delete_category', authenticateToken, async (req, res) => {
     console.log('/delete_category');
     try {
@@ -44,7 +44,7 @@ router.post('/delete_category', authenticateToken, async (req, res) => {
     }
 });
 
-//get active/non-disabled items.
+//get all category values saved in the DB.
 router.get('/get_categories', authenticateToken, async (req, res) => {
     console.log('/get_categories');
     try {

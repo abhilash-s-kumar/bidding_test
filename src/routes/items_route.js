@@ -25,7 +25,7 @@ router.post('/add_item', authenticateToken, async (req, res) => {
     }
 });
 
-//only disables the item, doesnt delete permanently.
+//only disables the item (setting the status as 'disabled'), doesnt delete permanently.
 router.post('/disable_item', authenticateToken, async (req, res) => {
     console.log('/disable_item');
     try {
@@ -114,7 +114,7 @@ router.get('/get_customer_items', authenticateToken, async (req, res) => {
     }
 });
 
-//get disabled items.
+//get disabled items (optional)
 router.get('/get_del_item', authenticateToken, async (req, res) => {
     console.log('/get_del_item');
     try {
