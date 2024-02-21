@@ -11,7 +11,7 @@ const fileRoute = require('./routes/file_upload.js');
 
 
 const app = express();
-const httpPort = 5500;
+const httpPort = process.env.HTTP_PORT;
 
 // DBcon();
 
